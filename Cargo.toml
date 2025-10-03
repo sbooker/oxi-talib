@@ -1,6 +1,6 @@
 [package]
 name = "oxi-talib"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Sergey Knigin <sbooker@mail.ru>"]
 license = "MIT"
@@ -11,4 +11,4 @@ keywords = ["finance", "trading", "technical-analysis", "ta-lib", "candlestick"]
 categories = ["finance"]
 
 [dependencies]
-ta-lib-wrapper = "0.2.0"
+ta-lib-sys = "0.1.2"

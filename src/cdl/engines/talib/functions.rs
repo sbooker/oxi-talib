@@ -2,12 +2,8 @@ use crate::cdl::api::patterns::Pattern;
 use crate::cdl::api::patterns::Pattern::*;
 use crate::cdl::api::settings::Settings;
 use std::sync::Once;
-use ta_lib_wrapper::{
-    TA_CDL3BLACKCROWS, TA_CDL3WHITESOLDIERS, TA_CDLDARKCLOUDCOVER, TA_CDLDOJI, TA_CDLDRAGONFLYDOJI,
-    TA_CDLENGULFING, TA_CDLEVENINGSTAR, TA_CDLGRAVESTONEDOJI, TA_CDLHAMMER, TA_CDLHANGINGMAN,
-    TA_CDLHARAMI, TA_CDLHARAMICROSS, TA_CDLINVERTEDHAMMER, TA_CDLLONGLINE, TA_CDLMARUBOZU,
-    TA_CDLMORNINGSTAR, TA_CDLPIERCING, TA_CDLSHOOTINGSTAR, TA_CDLSHORTLINE, TA_CDLSPINNINGTOP,
-};
+use ta_lib_sys::{CDLKICKING, CDL3BLACKCROWS, CDL3WHITESOLDIERS, CDLDARKCLOUDCOVER, CDLDOJI, CDLDRAGONFLYDOJI, CDLENGULFING, CDLEVENINGSTAR, CDLGRAVESTONEDOJI, CDLHAMMER, CDLHANGINGMAN, CDLHARAMI, CDLHARAMICROSS, CDLINVERTEDHAMMER, CDLLONGLINE, CDLMARUBOZU, CDLMORNINGSTAR, CDLPIERCING, CDLSHOOTINGSTAR, CDLSHORTLINE, CDLSPINNINGTOP};
+use ta_lib_sys::RetCode;
 
 pub(crate) static mut STAR_PENETRATION: f64 = 0.0;
 pub(crate) static mut PIERCING_PENETRATION: f64 = 0.0;
@@ -32,10 +28,10 @@ unsafe extern "C" fn ta_cdlmorningstar(
     outBegIdx: *mut i32,
     outNBElement: *mut i32,
     outInteger: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     initialize_penetration_defaults();
     let penetration = STAR_PENETRATION;
-    TA_CDLMORNINGSTAR(
+    CDLMORNINGSTAR(
         startIdx,
         endIdx,
         inOpen,
@@ -60,10 +56,10 @@ unsafe extern "C" fn ta_cdleveningstar(
     outBegIdx: *mut i32,
     outNBElement: *mut i32,
     outInteger: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     initialize_penetration_defaults();
     let penetration = STAR_PENETRATION;
-    TA_CDLEVENINGSTAR(
+    CDLEVENINGSTAR(
         startIdx,
         endIdx,
         inOpen,
@@ -88,10 +84,10 @@ unsafe extern "C" fn ta_cdldarkcloudcover(
     outBegIdx: *mut i32,
     outNBElement: *mut i32,
     outInteger: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     initialize_penetration_defaults();
     let penetration = STAR_PENETRATION;
-    TA_CDLDARKCLOUDCOVER(
+    CDLDARKCLOUDCOVER(
         startIdx,
         endIdx,
         inOpen,
@@ -115,7 +111,7 @@ pub type TaCdlFnPtr = unsafe extern "C" fn(
     *mut i32,
     *mut i32,
     *mut i32,
-) -> ta_lib_wrapper::TA_RetCode;
+) -> RetCode;
 
 #[derive(PartialEq, Eq)]
 enum Filter {
@@ -136,7 +132,7 @@ unsafe fn filter_wrapper(
     outBegIdx: *mut i32,
     outNBElement: *mut i32,
     outInteger: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     let ret_code = base_fn(
         startIdx,
         endIdx,
@@ -149,7 +145,7 @@ unsafe fn filter_wrapper(
         outInteger,
     );
 
-    if ret_code == ta_lib_wrapper::TA_RetCode::TA_SUCCESS {
+    if ret_code == RetCode::SUCCESS {
         for i in 0..*outNBElement {
             let val_ptr = outInteger.add(i as usize);
 
@@ -178,9 +174,9 @@ unsafe extern "C" fn bullish_engulfing(
     outBegIdx: *mut i32,
     outNBElement: *mut i32,
     outInteger: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        TA_CDLENGULFING,
+        CDLENGULFING,
         Filter::Bullish,
         startIdx,
         endIdx,
@@ -205,9 +201,9 @@ unsafe extern "C" fn bearish_engulfing(
     outBegIdx: *mut i32,
     outNBElement: *mut i32,
     outInteger: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        TA_CDLENGULFING,
+        CDLENGULFING,
         Filter::Bearish,
         startIdx,
         endIdx,
@@ -233,8 +229,8 @@ unsafe extern "C" fn bullish_harami(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
-    filter_wrapper(TA_CDLHARAMI, Filter::Bullish, s, e, o, h, l, c, ob, on, oi)
+) -> RetCode {
+    filter_wrapper(CDLHARAMI, Filter::Bullish, s, e, o, h, l, c, ob, on, oi)
 }
 #[allow(non_snake_case)]
 unsafe extern "C" fn bearish_harami(
@@ -247,8 +243,8 @@ unsafe extern "C" fn bearish_harami(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
-    filter_wrapper(TA_CDLHARAMI, Filter::Bearish, s, e, o, h, l, c, ob, on, oi)
+) -> RetCode {
+    filter_wrapper(CDLHARAMI, Filter::Bearish, s, e, o, h, l, c, ob, on, oi)
 }
 
 // HaramiCross
@@ -263,9 +259,9 @@ unsafe extern "C" fn bullish_haramicross(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        TA_CDLHARAMICROSS,
+        CDLHARAMICROSS,
         Filter::Bullish,
         s,
         e,
@@ -289,9 +285,9 @@ unsafe extern "C" fn bearish_haramicross(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        TA_CDLHARAMICROSS,
+        CDLHARAMICROSS,
         Filter::Bearish,
         s,
         e,
@@ -317,9 +313,9 @@ unsafe extern "C" fn bullish_marubozu(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        TA_CDLMARUBOZU,
+        CDLMARUBOZU,
         Filter::Bullish,
         s,
         e,
@@ -343,9 +339,9 @@ unsafe extern "C" fn bearish_marubozu(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        TA_CDLMARUBOZU,
+        CDLMARUBOZU,
         Filter::Bearish,
         s,
         e,
@@ -371,9 +367,9 @@ unsafe extern "C" fn bullish_longline(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        TA_CDLLONGLINE,
+        CDLLONGLINE,
         Filter::Bullish,
         s,
         e,
@@ -397,9 +393,9 @@ unsafe extern "C" fn bearish_longline(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        TA_CDLLONGLINE,
+        CDLLONGLINE,
         Filter::Bearish,
         s,
         e,
@@ -425,9 +421,9 @@ unsafe extern "C" fn bullish_shortline(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        TA_CDLSHORTLINE,
+        CDLSHORTLINE,
         Filter::Bullish,
         s,
         e,
@@ -451,9 +447,9 @@ unsafe extern "C" fn bearish_shortline(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        TA_CDLSHORTLINE,
+        CDLSHORTLINE,
         Filter::Bearish,
         s,
         e,
@@ -479,9 +475,9 @@ unsafe extern "C" fn bullish_kicking(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        ta_lib_wrapper::TA_CDLKICKING,
+        CDLKICKING,
         Filter::Bullish,
         s,
         e,
@@ -505,9 +501,9 @@ unsafe extern "C" fn bearish_kicking(
     ob: *mut i32,
     on: *mut i32,
     oi: *mut i32,
-) -> ta_lib_wrapper::TA_RetCode {
+) -> RetCode {
     filter_wrapper(
-        ta_lib_wrapper::TA_CDLKICKING,
+        CDLKICKING,
         Filter::Bearish,
         s,
         e,
@@ -524,19 +520,19 @@ unsafe extern "C" fn bearish_kicking(
 impl Pattern {
     pub(crate) fn ta_lib_function(&self) -> TaCdlFnPtr {
         match self {
-            Hammer => TA_CDLHAMMER,
-            InvertedHammer => TA_CDLINVERTEDHAMMER,
-            ThreeWhiteSoldiers => TA_CDL3WHITESOLDIERS,
-            PiercingLine => TA_CDLPIERCING,
-            DragonFly => TA_CDLDRAGONFLYDOJI,
+            Hammer => CDLHAMMER,
+            InvertedHammer => CDLINVERTEDHAMMER,
+            ThreeWhiteSoldiers => CDL3WHITESOLDIERS,
+            PiercingLine => CDLPIERCING,
+            DragonFly => CDLDRAGONFLYDOJI,
 
-            HangingMan => TA_CDLHANGINGMAN,
-            ShootingStar => TA_CDLSHOOTINGSTAR,
-            ThreeBlackCrows => TA_CDL3BLACKCROWS,
-            Gravestone => TA_CDLGRAVESTONEDOJI,
+            HangingMan => CDLHANGINGMAN,
+            ShootingStar => CDLSHOOTINGSTAR,
+            ThreeBlackCrows => CDL3BLACKCROWS,
+            Gravestone => CDLGRAVESTONEDOJI,
 
-            Doji => TA_CDLDOJI,
-            SpinningTop => TA_CDLSPINNINGTOP,
+            Doji => CDLDOJI,
+            SpinningTop => CDLSPINNINGTOP,
 
             MorningStar => ta_cdlmorningstar,
             EveningStar => ta_cdleveningstar,

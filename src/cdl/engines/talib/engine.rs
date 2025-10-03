@@ -3,7 +3,10 @@ use crate::cdl::engines::talib::functions::TaCdlFnPtr;
 use crate::Error::{AlreadyConfigured, CalculationError};
 use crate::{Candle, Error, Pattern, Settings, Signal, SimpleCandle};
 use std::sync::OnceLock;
-use ta_lib_wrapper::TA_SetCandleSettings;
+use ta_lib_sys::{SetCandleSettings, RetCode};
+use crate::cdl::engines::talib::functions::{PIERCING_PENETRATION, STAR_PENETRATION};
+use ta_lib_sys::CandleSettingType::*;
+use ta_lib_sys::RangeType::*;
 
 static SETTINGS: OnceLock<Settings> = OnceLock::new();
 
@@ -59,79 +62,73 @@ impl TaLibEngine {
 
     fn apply_settings(settings: &Settings) {
         unsafe {
-            // Импортируем все нужные типы, чтобы не писать длинные пути
-            use crate::cdl::engines::talib::functions::{PIERCING_PENETRATION, STAR_PENETRATION};
-            use ta_lib_wrapper::TA_CandleSettingType::*;
-            use ta_lib_wrapper::TA_RangeType::*;
-
-            // --- Тела ---
-            TA_SetCandleSettings(
-                TA_BodyLong,
-                TA_RangeType_RealBody,
+            SetCandleSettings(
+                BodyLong,
+                RangeType_RealBody,
                 settings.period,
                 settings.body_long_factor,
             );
-            TA_SetCandleSettings(
-                TA_BodyVeryLong,
-                TA_RangeType_RealBody,
+            SetCandleSettings(
+                BodyVeryLong,
+                RangeType_RealBody,
                 settings.period,
                 settings.body_very_long_factor,
             );
-            TA_SetCandleSettings(
-                TA_BodyShort,
-                TA_RangeType_RealBody,
+            SetCandleSettings(
+                BodyShort,
+                RangeType_RealBody,
                 settings.period,
                 settings.body_short_factor,
             );
-            TA_SetCandleSettings(
-                TA_BodyDoji,
-                TA_RangeType_HighLow,
+            SetCandleSettings(
+                BodyDoji,
+                RangeType_HighLow,
                 settings.period,
                 settings.body_doji_factor,
             );
 
             // --- Тени ---
-            TA_SetCandleSettings(
-                TA_ShadowLong,
-                TA_RangeType_RealBody,
+            SetCandleSettings(
+                ShadowLong,
+                RangeType_RealBody,
                 settings.period,
                 settings.shadow_long_factor,
             );
-            TA_SetCandleSettings(
-                TA_ShadowVeryLong,
-                TA_RangeType_RealBody,
+            SetCandleSettings(
+                ShadowVeryLong,
+                RangeType_RealBody,
                 settings.period,
                 settings.shadow_very_long_factor,
             );
-            TA_SetCandleSettings(
-                TA_ShadowShort,
-                TA_RangeType_HighLow,
+            SetCandleSettings(
+                ShadowShort,
+                RangeType_HighLow,
                 settings.period,
                 settings.shadow_short_factor,
             );
-            TA_SetCandleSettings(
-                TA_ShadowVeryShort,
-                TA_RangeType_HighLow,
+            SetCandleSettings(
+                ShadowVeryShort,
+                RangeType_HighLow,
                 settings.period,
                 settings.shadow_very_short_factor,
             );
 
             // --- Сравнение цен ---
-            TA_SetCandleSettings(
-                TA_Near,
-                TA_RangeType_RealBody,
+            SetCandleSettings(
+                Near,
+                RangeType_RealBody,
                 settings.period,
                 settings.near_factor,
             );
-            TA_SetCandleSettings(
-                TA_Far,
-                TA_RangeType_RealBody,
+            SetCandleSettings(
+                Far,
+                RangeType_RealBody,
                 settings.period,
                 settings.far_factor,
             );
-            TA_SetCandleSettings(
-                TA_Equal,
-                TA_RangeType_RealBody,
+            SetCandleSettings(
+                Equal,
+                RangeType_RealBody,
                 settings.period,
                 settings.equal_factor,
             );
@@ -180,14 +177,14 @@ impl<C: Candle> IntoRows for [C] {
 impl TaLibEngine {
     fn unsafe_call<C: Candle>(
         candles: &[C],
-        ta_cdl_fn_ptr: TaCdlFnPtr,
+        cdl_fn_ptr: TaCdlFnPtr,
     ) -> Result<Vec<Option<Signal>>, Error> {
         let mut out_beg_idx: i32 = 0;
         let mut out_nb_element: i32 = 0;
         let mut out_arr: Vec<i32> = vec![0; candles.len()];
 
         unsafe {
-            Self::map_error(ta_cdl_fn_ptr(
+            Self::map_error(cdl_fn_ptr(
                 0,
                 (candles.len() - 1) as i32,
                 candles.opens().as_ptr(),
@@ -203,9 +200,9 @@ impl TaLibEngine {
         Self::map_ok(out_beg_idx, out_nb_element, out_arr)
     }
 
-    fn map_error(res: ta_lib_wrapper::TA_RetCode) -> Result<(), Error> {
+    fn map_error(res: RetCode) -> Result<(), Error> {
         match res {
-            ta_lib_wrapper::TA_RetCode::TA_SUCCESS => Ok(()),
+            RetCode::SUCCESS => Ok(()),
             _ => Err(CalculationError(format!("TA-Lib error: {res:?}"))),
         }
     }
