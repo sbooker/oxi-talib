@@ -1,0 +1,41 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: rust:1.88.0-bookworm
+
+    env:
+      LIBCLANG_PATH: /usr/lib/x86_64-linux-gnu
+      BINDGEN_EXTRA_CLANG_ARGS: "-I/usr/include"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: apt-get update && apt-get install -y wget llvm-dev libclang-dev clang
+      - name: Install TA-Lib
+        run: |
+          wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+          tar -xzf ta-lib-0.4.0-src.tar.gz
+          cd ta-lib
+          ./configure --prefix=/usr
+          make
+          make install
+          ldconfig
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose

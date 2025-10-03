@@ -4,7 +4,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/oxi-talib.svg)](https://crates.io/crates/oxi-talib)
 [![Docs.rs](https://docs.rs/oxi-talib/badge.svg)](https://docs.rs/oxi-talib)
-[![CI](https://github.com/sbooker/oxi-talib/actions/workflows/ci.yml/badge.svg)](https://github.com/sbooker/oxi-talib/actions)
+[![CI](https://github.com/sbooker/oxi-talib/actions/workflows/rust.yaml/badge.svg)](https://github.com/sbooker/oxi-talib/actions)
 
 **oxi-talib** is a Rust library for candlestick pattern recognition.
 
