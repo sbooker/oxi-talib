@@ -16,25 +16,15 @@
 
 ## Установка
 
-### 1. Зависимость: TA-Lib
+### 1. Системные зависимости
 
-Библиотека зависит от C-библиотеки `TA-Lib`, которая должна быть установлена в системе.
-
-**Linux / macOS**
-Сборка из исходного кода:
+**Debian / Ubuntu:**
 ```bash
-wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
-tar -xzf ta-lib-0.4.0-src.tar.gz
-cd ta-lib/
-./configure --prefix=/usr
-make
-sudo make install
+sudo apt-get update && sudo apt-get install build-essential libclang-dev
 ```
 
-**Windows**
-Рекомендуется использовать [WSL (подсистема Windows для Linux)](https://learn.microsoft.com/ru-ru/windows/wsl/install) и следовать инструкциям для Linux.
-
-[Детали установки для разных систем...](https://github.com/TA-Lib/ta-lib-python/blob/master/docs/install.md)
+**Другие системы:**
+Установите аналогичный пакет (например, `base-devel` в Arch Linux, "Build Tools for Visual Studio" в Windows, или Xcode Command Line Tools в macOS).
 
 ### 2. Зависимость в `Cargo.toml`
 

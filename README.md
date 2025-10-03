@@ -16,25 +16,17 @@
 
 ## Installation
 
-### 1. Dependency: TA-Lib
+### 1. System Dependencies
 
 The library depends on the C library `TA-Lib`, which must be installed on the system.
 
 **Linux / macOS**
-Build from source:
 ```bash
-wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
-tar -xzf ta-lib-0.4.0-src.tar.gz
-cd ta-lib/
-./configure --prefix=/usr
-make
-sudo make install
+sudo apt-get update && sudo apt-get install build-essential libclang-dev
 ```
 
-**Windows**
-It is recommended to use [WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install) and follow the Linux instructions.
-
-[Details on installation for different systems...](https://github.com/TA-Lib/ta-lib-python/blob/master/docs/install.md)
+**Other Systems:**
+Install the equivalent packages (e.g., `base-devel` and `clang` on Arch Linux, "Build Tools for Visual Studio" and LLVM on Windows, or Xcode Command Line Tools on macOS).
 
 ### 2. Dependency in `Cargo.toml`
 
