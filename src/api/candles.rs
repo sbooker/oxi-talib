@@ -1,5 +1,5 @@
-use crate::cdl::api::error::Error;
-use crate::cdl::api::error::Error::*;
+use crate::api::error::Error;
+use crate::api::error::Error::*;
 
 /// A trait for types that represent a candlestick.
 ///
@@ -72,6 +72,18 @@ impl SimpleCandle {
             candle.high().into(),
             candle.low().into(),
         )
+    }
+
+    /// Converts a slice of items implementing [`Candle`] into a vector of [`SimpleCandle`].
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::InvalidCandle`] if any candle fails price validation.
+    pub fn try_map_candles<C: Candle>(candles: &[C]) -> Result<Vec<Self>, Error> {
+        candles
+            .iter()
+            .map(|c | Self::try_from_candle(c.clone()))
+            .collect::<Result<Vec<_>, _>>()
     }
 }
 
