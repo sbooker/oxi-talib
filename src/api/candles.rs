@@ -1,5 +1,5 @@
-use crate::cdl::api::error::Error;
-use crate::cdl::api::error::Error::*;
+use crate::api::error::Error;
+use crate::api::error::Error::*;
 
 /// A trait for types that represent a candlestick.
 ///

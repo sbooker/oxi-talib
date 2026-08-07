@@ -1,4 +1,4 @@
-use crate::cdl::api::error::Error::*;
+use crate::Error::*;
 use std::fmt::Formatter;
 
 /// An enum representing all possible errors in the library.

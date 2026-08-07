@@ -4,7 +4,7 @@
 /// shadow length, are interpreted.
 ///
 /// Use `Settings::default()` to get standard values, then modify fields as needed.
-/// The created struct should be passed to [`crate::cdl::engines::talib::engine::configure`].
+/// The created struct should be passed to [`crate::engines::talib::cdl::engine::configure`].
 #[derive(Debug, Clone)]
 pub struct Settings {
     /// The lookback period for calculating average candle component sizes.

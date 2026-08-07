@@ -10,11 +10,13 @@ pub mod patterns;
 pub mod settings;
 /// `Signal` and `Quality` structs.
 pub mod signal;
+pub mod ta;
 
-pub use crate::cdl::engines::talib::engine::configure;
+pub use crate::engines::talib::cdl::engine::configure;
 pub use candles::*;
 pub use cdl::*;
 pub use error::*;
 pub use patterns::*;
 pub use settings::*;
 pub use signal::*;
+pub use ta::*;

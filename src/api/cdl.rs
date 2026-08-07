@@ -1,4 +1,4 @@
-use crate::cdl::engines::internal::CdlApiInternal;
+use crate::engines::internal::CdlApiInternal;
 use crate::Pattern;
 use crate::Signal;
 use crate::{Candle, Error, SimpleCandle};
@@ -12,7 +12,7 @@ use crate::{Candle, Error, SimpleCandle};
 ///
 /// **Important:** The library uses a global state for its settings.
 /// If you require custom parameters (e.g., to define the size of a "long" candle),
-/// you **must** call the [`crate::cdl::engines::talib::engine::configure`] function
+/// you **must** call the [`crate::engines::talib::cdl::engine::configure`] function
 /// **once** at application startup, before calling [`crate::cdl()`] and before
 /// spawning any other threads that use this crate.
 ///
@@ -23,7 +23,7 @@ pub struct Cdl {
 
 impl Cdl {
     pub(crate) fn new(internal: &'static (dyn CdlApiInternal + Send + Sync)) -> Self {
-        Cdl { internal }
+        Self { internal }
     }
 
     /// Scans a slice of candles for a specific pattern.

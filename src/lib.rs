@@ -15,6 +15,7 @@
 //! # Example
 //!
 //! ```no_run
+//! use std::num::NonZeroU16;
 //! use oxi_talib::{cdl, Pattern, SimpleCandle};
 //!
 //! // Use the built-in SimpleCandle struct
@@ -24,8 +25,8 @@
 //! ];
 //!
 //! // 0. Configure the library
-//! //    (optional but required for custom settings)
-//! let settings = oxi_talib::cdl::api::settings::Settings::default();
+//! //    (optional but required for custom candle settings)
+//! let settings = oxi_talib::api::settings::Settings::default();
 //! oxi_talib::configure(settings).unwrap();
 //!
 //! // 1. Get the analyzer
@@ -40,20 +41,30 @@
 //!         println!("Hammer pattern found at candle #{}!", i);
 //!     }
 //! }
+//!
+//! // 4. ATR
+//! let atr = oxi_talib::atr(&candles, NonZeroU16::new(14).unwrap()).unwrap();
 //! ```
 //!
 //! # Configuration
 //!
 //! The library uses internal global parameters for its recognition algorithms.
-//! See the documentation for [`cdl::engines::talib::engine::configure`] for details on how to set them.
+//! See the documentation for [`engines::talib::cdl::engine::configure`] for details on how to set them.
 //! This step is optional but required for custom settings. Configuration
 //! must be performed once at startup, in a single-threaded context.
 /// Candlestick pattern recognition API.
-pub mod cdl;
+pub mod api;
+pub use crate::api::candles::*;
+pub use crate::api::cdl::*;
+pub use crate::api::error::*;
+pub use crate::api::patterns::*;
+pub use crate::api::settings::*;
+pub use crate::api::signal::*;
+pub use crate::api::ta::*;
+pub use crate::engines::talib::cdl::engine::configure;
 
-pub use cdl::api::*;
-
-use crate::cdl::engines::talib::engine::instance;
+pub(crate) mod engines;
+use engines::talib::cdl::engine::instance;
 
 /// Returns an analyzer for candlestick pattern recognition.
 ///
@@ -65,7 +76,7 @@ use crate::cdl::engines::talib::engine::instance;
 /// same instance.
 ///
 /// Custom engine settings can be applied via the
-/// [`cdl::engines::talib::engine::configure`] function before the first call to `cdl()`.
+/// [`engines::talib::cdl::engine::configure`] function before the first call to `cdl()`.
 /// If it is not called, balanced default settings built into this crate will be used.
 pub fn cdl() -> Cdl {
     Cdl::new(instance())
