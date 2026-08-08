@@ -1,6 +1,7 @@
-use ta_lib_sys::RetCode;
-use crate::{Candle, Error};
+use crate::api::results::IndicatorResult;
 use crate::Error::CalculationError;
+use crate::{Candle, Error};
+use ta_lib_sys::RetCode;
 
 pub(crate) mod cdl;
 pub(crate) mod ta;
@@ -28,6 +29,13 @@ fn map_output<T: Copy + Default>(out_arr: &[T], out_nb_element: i32, out_beg_idx
     }
 
     results
+}
+
+pub fn map_output_res<T: Copy + Default>(out_arr: &[T], out_nb_element: i32, out_beg_idx: i32) -> IndicatorResult<T> {
+    IndicatorResult{
+        values: (&out_arr[0..out_nb_element as usize]).to_vec(),
+        offset: out_beg_idx as usize,
+    }
 }
 
 pub(crate) trait IntoRows {

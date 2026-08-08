@@ -12,3 +12,6 @@ categories = ["finance"]
 
 [dependencies]
 ta-lib-sys = "0.1.2"
+
+[dev-dependencies]
+float_eq = "1.0.1"

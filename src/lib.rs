@@ -44,6 +44,9 @@
 //!
 //! // 4. ATR
 //! let atr = oxi_talib::atr(&candles, NonZeroU16::new(14).unwrap()).unwrap();
+//!
+//! // 5. SuperTrend
+//! let super_trend = oxi_talib::super_trend(&candles, NonZeroU16::new(14).unwrap(), NonZeroU16::new(3).unwrap()).unwrap();
 //! ```
 //!
 //! # Configuration

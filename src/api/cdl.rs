@@ -46,11 +46,7 @@ impl Cdl {
         pattern: Pattern,
         candles: &[C],
     ) -> Result<Vec<Option<Signal>>, Error> {
-        let candles = candles
-            .iter()
-            .map(|candle| SimpleCandle::try_from_candle(candle.clone()))
-            .collect::<Result<Vec<_>, _>>()?;
-
+        let candles = SimpleCandle::try_map_candles(candles)?;
         let signals = self.internal.pattern(pattern, &candles)?;
 
         Ok(signals)

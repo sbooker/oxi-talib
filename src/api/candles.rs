@@ -73,6 +73,13 @@ impl SimpleCandle {
             candle.low().into(),
         )
     }
+
+    pub fn try_map_candles<C: Candle>(candles: &[C]) -> Result<Vec<Self>, Error> {
+        candles
+            .iter()
+            .map(|c | Self::try_from_candle(c.clone()))
+            .collect::<Result<Vec<_>, _>>()
+    }
 }
 
 impl Candle for SimpleCandle {

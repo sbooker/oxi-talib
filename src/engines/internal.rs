@@ -1,4 +1,5 @@
-use crate::api::{Error, Pattern, Signal, SimpleCandle, Candle};
+use crate::api::results::{IndicatorResult, SuperTrendResult};
+use crate::api::{Error, Pattern, Signal, SimpleCandle};
 use std::num::NonZeroU16;
 
 pub trait CdlApiInternal {
@@ -10,5 +11,7 @@ pub trait CdlApiInternal {
 }
 
 pub trait TaApiInternal {
-    fn atr<C: Candle>(candles: &[C], period: NonZeroU16) -> Result<Vec<f64>, Error>;
+    fn atr(candles: &[SimpleCandle], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error>;
+
+    fn super_trend(candles: &[SimpleCandle], period: NonZeroU16, multiplier: NonZeroU16) -> Result<IndicatorResult<SuperTrendResult>, Error>;
 }

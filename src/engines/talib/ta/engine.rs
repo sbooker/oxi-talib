@@ -1,5 +1,7 @@
+use crate::api::results::{IndicatorResult, SuperTrendResult};
 use crate::engines::internal::TaApiInternal;
-use crate::engines::talib::{map_error, map_output, IntoRows};
+use crate::engines::talib::ta::super_trend::SuperTrend;
+use crate::engines::talib::{map_error, map_output_res, IntoRows};
 use crate::{Candle, Error, SimpleCandle};
 use std::num::NonZeroU16;
 use ta_lib_sys::ATR;
@@ -8,7 +10,7 @@ pub(crate) struct TaLibEngine {}
 
 #[allow(non_snake_case, clippy::too_many_arguments)]
 impl TaApiInternal for TaLibEngine {
-    fn atr<C: Candle>(candles: &[C], period: NonZeroU16) -> Result<Vec<f64>, Error> {
+    fn atr(candles: &[SimpleCandle], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error> {
         let mut out_beg_idx: i32 = 0;
         let mut out_nb_element: i32 = 0;
         let mut out_arr: Vec<f64> = vec![0f64; candles.len()];
@@ -29,7 +31,11 @@ impl TaApiInternal for TaLibEngine {
             )?
         }
 
-        Ok(map_output(&out_arr, out_nb_element, out_beg_idx))
+        Ok(map_output_res(&out_arr, out_nb_element, out_beg_idx))
+    }
+
+    fn super_trend(candles: &[SimpleCandle], period: NonZeroU16, multiplier: NonZeroU16) -> Result<IndicatorResult<SuperTrendResult>, Error> {
+        SuperTrend::calc(candles, period, multiplier.get() as f64)
     }
 }
 
@@ -39,6 +45,7 @@ mod tests {
 
     mod atr {
         use super::*;
+        use float_eq::assert_float_eq;
 
         #[test]
         fn sber_20260103_20260109() {
@@ -53,11 +60,12 @@ mod tests {
                 .map(|(open, high, low, close)| SimpleCandle::try_new(open, close, high, low).unwrap())
                 .collect();
 
-            let expected = vec![0.0, 0.0, 0.0, 2.5266666666666424, 3.151111111111087];
+            let expected_val = vec![2.5266666666666664, 3.1511111111111107];
 
             let res = TaLibEngine::atr(candles.as_slice(), 3.try_into().unwrap()).unwrap();
 
-            assert_eq!(res, expected);
+            assert_eq!(res.offset, 3);
+            assert_float_eq!(res.values, expected_val, abs_all <= 1e-10);
         }
     }
 }
