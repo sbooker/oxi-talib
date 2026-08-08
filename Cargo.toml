@@ -1,17 +1,39 @@
 [package]
 name = "oxi-talib"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 authors = ["Sergey Knigin <sbooker@mail.ru>"]
 license = "MIT"
-description = "A Rust library for candlestick pattern recognition."
+description = "A Rust library for technical analysis"
 repository = "https://github.com/sbooker/oxi-talib"
 readme = "README.md"
 keywords = ["finance", "trading", "technical-analysis", "ta-lib", "candlestick"]
 categories = ["finance"]
 
+[features]
+## Candle types and the [`Candle`](https://docs.rs/oxi-talib/latest/oxi_talib/trait.Candle.html) trait.
+##
+## Enables only the `candles` module so that client code can integrate
+## the library's data types into its own business logic without pulling in
+## the rest of the analysis stack.
+##
+## Other features (`cdl`, `ta`, `full`) include this one automatically.
+candles = []
+## Candlestick pattern recognition (`Cdl`, `Pattern`, `Signal`, settings).
+##
+## Implies `candles`.
+cdl = ["candles", "dep:ta-lib-sys"]
+## Technical indicators (`atr`, `super_trend`, etc.).
+##
+## Implies `candles`.
+ta = ["candles", "dep:ta-lib-sys"]
+## All features enabled. This is the default.
+full = ["cdl", "ta"]
+
+default = ["full"]
+
 [dependencies]
-ta-lib-sys = "0.1.2"
+ta-lib-sys = { version = "0.1.2", optional = true }
 
 [dev-dependencies]
 float_eq = "1.0.1"

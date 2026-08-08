@@ -1,20 +1,21 @@
-use crate::api::results::IndicatorResult;
 use crate::Error::CalculationError;
 use crate::{Candle, Error};
 use ta_lib_sys::RetCode;
 
+#[cfg(feature = "cdl")]
 pub(crate) mod cdl;
+
+#[cfg(feature = "ta")]
 pub(crate) mod ta;
 
-
-fn map_error(res: RetCode) -> Result<(), Error> {
+pub(crate) fn map_error(res: RetCode) -> Result<(), Error> {
     match res {
         RetCode::SUCCESS => Ok(()),
         _ => Err(CalculationError(format!("TA-Lib error: {res:?}"))),
     }
 }
 
-fn map_output<T: Copy + Default>(out_arr: &[T], out_nb_element: i32, out_beg_idx: i32) -> Vec<T> {
+pub(crate) fn map_output<T: Copy + Default>(out_arr: &[T], out_nb_element: i32, out_beg_idx: i32) -> Vec<T> {
     let mut results: Vec<T> = vec![T::default(); out_arr.len()];
 
     let calculated_part = &out_arr[0..out_nb_element as usize];
@@ -29,13 +30,6 @@ fn map_output<T: Copy + Default>(out_arr: &[T], out_nb_element: i32, out_beg_idx
     }
 
     results
-}
-
-pub fn map_output_res<T: Copy + Default>(out_arr: &[T], out_nb_element: i32, out_beg_idx: i32) -> IndicatorResult<T> {
-    IndicatorResult{
-        values: (&out_arr[0..out_nb_element as usize]).to_vec(),
-        offset: out_beg_idx as usize,
-    }
 }
 
 pub(crate) trait IntoRows {

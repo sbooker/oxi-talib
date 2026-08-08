@@ -1,7 +1,19 @@
+#[cfg(any(feature = "cdl", feature = "ta"))]
+use crate::api::Error;
+
+#[cfg(feature = "cdl")]
+use crate::api::{Pattern, Signal};
+
+#[cfg(any(feature = "cdl", feature = "ta"))]
+use crate::api::SimpleCandle;
+
+#[cfg(feature = "ta")]
 use crate::api::results::{IndicatorResult, SuperTrendResult};
-use crate::api::{Error, Pattern, Signal, SimpleCandle};
+
+#[cfg(feature = "ta")]
 use std::num::NonZeroU16;
 
+#[cfg(feature = "cdl")]
 pub trait CdlApiInternal {
     fn pattern(
         &self,
@@ -10,6 +22,7 @@ pub trait CdlApiInternal {
     ) -> Result<Vec<Option<Signal>>, Error>;
 }
 
+#[cfg(feature = "ta")]
 pub trait TaApiInternal {
     fn atr(candles: &[SimpleCandle], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error>;
 

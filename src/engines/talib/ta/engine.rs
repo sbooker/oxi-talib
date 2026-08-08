@@ -1,8 +1,9 @@
 use crate::api::results::{IndicatorResult, SuperTrendResult};
 use crate::engines::internal::TaApiInternal;
+use crate::engines::talib::ta::map_output_res;
 use crate::engines::talib::ta::super_trend::SuperTrend;
-use crate::engines::talib::{map_error, map_output_res, IntoRows};
-use crate::{Candle, Error, SimpleCandle};
+use crate::engines::talib::{map_error, IntoRows};
+use crate::{Error, SimpleCandle};
 use std::num::NonZeroU16;
 use ta_lib_sys::ATR;
 
