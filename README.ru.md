@@ -6,53 +6,79 @@
 [![Docs.rs](https://docs.rs/oxi-talib/badge.svg)](https://docs.rs/oxi-talib)
 [![CI](https://github.com/sbooker/oxi-talib/actions/workflows/rust.yaml/badge.svg)](https://github.com/sbooker/oxi-talib/actions)
 
-**oxi-talib** — библиотека на Rust для распознавания свечных паттернов.
+**oxi-talib** — библиотека на Rust для технического анализа и распознавания свечных паттернов.
 
 ## Ключевые характеристики
 
-*   **API:** Интерфейс использует стандартные типы Rust (`Vec`, `Result`, `Option`).
+*   **API:** Интерфейс использует стандартные типы Rust (`Vec`, `Result`, `Option`, `NonZeroU16`).
+*   **Функционал:** Свечные паттерны и классические технические индикаторы (SMA, ATR, RSI, ADX, Bollinger Bands, SuperTrend).
 *   **Настраиваемость:** Параметры алгоритмов распознавания можно изменять.
-*   **Безопасность:** Публичный API на 100% безопасен. Весь `unsafe`-код, необходимый для взаимодействия с C-библиотекой, инкапсулирован.
+*   **Безопасность:** Публичный API на 100% безопасен (`safe Rust`). Весь `unsafe`-код взаимодействия с C-библиотекой инкапсулирован.
 
 ## Установка
 
-### 1. Системные зависимости
-
-**Debian / Ubuntu:**
-```bash
-sudo apt-get update && sudo apt-get install build-essential libclang-dev
-```
-
-**Другие системы:**
-Установите аналогичный пакет (например, `base-devel` в Arch Linux, "Build Tools for Visual Studio" в Windows, или Xcode Command Line Tools в macOS).
-
-### 2. Зависимость в `Cargo.toml`
+Добавьте зависимость в `Cargo.toml`:
 
 ```toml
 [dependencies]
-oxi-talib = "0.1.0"
+oxi-talib = "0.2.0"
 ```
 
-## Пример использования
+### Cargo Features
+
+Функциональность разделена на фичи, что позволяет подключать только нужные компоненты:
+* `full` (*по умолчанию*) — включает всё: свечные паттерны (`cdl`) и технические индикаторы (`ta`).
+* `ta` — только модуль индикаторов (SMA, ATR, RSI, ADX, SuperTrend, BBands и др.).
+* `cdl` — только распознавание свечных паттернов.
+* `candles` — базовый трейт `Candle` и структура `SimpleCandle` без внешних FFI-зависимостей.
+
+## Примеры использования
+
+### 1. Технические индикаторы
+
+```rust
+use std::num::NonZeroU16;
+use oxi_talib::{atr, super_trend, SimpleCandle, Error};
+
+fn main() -> Result<(), Error> {
+    let candles = vec![
+        SimpleCandle::try_new(100.0, 105.0, 106.0, 98.0)?,
+        SimpleCandle::try_new(105.0, 102.0, 107.0, 101.0)?,
+        SimpleCandle::try_new(102.0, 103.0, 104.0, 95.0)?,
+        SimpleCandle::try_new(103.0, 108.0, 109.0, 102.0)?,
+        SimpleCandle::try_new(108.0, 107.0, 110.0, 105.0)?,
+    ];
+
+    let period = NonZeroU16::new(3).unwrap();
+
+    // Расчет Average True Range (ATR)
+    let atr_res = atr(&candles, period)?;
+    println!("ATR offset: {}, значения: {:?}", atr_res.offset, atr_res.values);
+
+    // Расчет SuperTrend
+    let st_res = super_trend(&candles, period, 3.0)?;
+    for st in &st_res.values {
+        println!("SuperTrend: значение = {:.2}, тренд = {:?}", st.value, st.trend);
+    }
+
+    Ok(())
+}
+```
+
+### 2. Свечные паттерны
 
 ```rust
 use oxi_talib::{cdl, Pattern, SimpleCandle, Error};
 
 fn main() -> Result<(), Error> {
-    // 1. Данные для анализа.
     let candles: Vec<SimpleCandle> = vec![
         SimpleCandle::try_new(100.0, 105.0, 106.0, 98.0)?,
         SimpleCandle::try_new(105.0, 102.0, 107.0, 101.0)?,
-        // Свеча, соответствующая паттерну "Молот"
         SimpleCandle::try_new(102.0, 103.0, 104.0, 95.0)?,
         SimpleCandle::try_new(103.0, 108.0, 109.0, 102.0)?,
     ];
 
-    // 2. Выполнение анализа для паттерна "Молот".
     let signals = cdl().pattern(Pattern::Hammer, &candles)?;
-
-    // 3. Обработка результатов.
-    assert_eq!(signals.len(), candles.len());
 
     for (i, signal) in signals.iter().enumerate() {
         if let Some(s) = signal {
@@ -71,7 +97,7 @@ fn main() -> Result<(), Error> {
 
 ### Реализация трейта `Candle`
 
-Для работы с собственными структурами данных необходимо реализовать трейт `Candle`.
+Для работы с собственными структурами данных достаточно реализовать трейт `Candle`:
 
 ```rust
 use oxi_talib::{Candle, Pattern, cdl};
@@ -91,40 +117,36 @@ impl Candle for MyData {
     fn low(&self) -> Self::Price { self.low_price }
     fn close(&self) -> Self::Price { self.close_price }
 }
-
-let my_data: Vec<MyData> = // ...
-
-let signals = cdl().pattern(Pattern::Doji, &my_data);
 ```
 
-### Конфигурация
+### Конфигурация распознавания свечей
 
-Параметры распознавания можно изменить через функцию `configure`. Ее следует вызывать **один раз** при старте приложения в однопоточном контексте.
+Параметры распознавания свечных моделей можно изменить через функцию `configure` однократно при старте приложения:
 
 ```rust
-use oxi_talib::cdl::engines::talib::engine::configure;
+use oxi_talib::configure;
 use oxi_talib::Settings;
 
-// Выполняется один раз в функции main.
 let mut settings = Settings::default();
-settings.body_doji_factor = 0.2; // Пример изменения параметра
+settings.body_doji_factor = 0.2;
 
 configure(settings).expect("Конфигурация не должна вызываться повторно");
-
-// Все последующие вызовы `cdl()` будут использовать эти настройки.
 ```
 
 ## План развития
 
-*   **Этап 1: Покрытие API `TA-Lib`**
-    *   [ ] Добавление всех оставшихся свечных паттернов (`CDL`).
-    *   [ ] Реализация модуля для технических индикаторов (SMA, EMA, RSI, MACD и т.д.).
+*   **Этап 1: Расширение покрытия API `TA-Lib`**
+    *   [ ] Добавление оставшихся свечных паттернов (`CDL2CROWS`, `CDLABANDONEDBABY`, `CDL3INSIDE`, `CDL3LINESTRIKE` и др.).
+    *   [ ] Скользящие средние и трендовые индикаторы (EMA, WMA, DEMA, TEMA, MACD, Parabolic SAR и др.).
+    *   [ ] Осцилляторы и моментум (Stochastic, CCI, Williams %R, ROC, MFI и др.).
+    *   [ ] Объемные индикаторы (OBV, Chaikin A/D и др.).
+    *   [ ] Статистические функции (линейная регрессия, дисперсия и др.).
 
 *   **Этап 2: Нативная Rust-реализация**
-    *   [ ] Постепенная замена вызовов C-функций на эквивалентные реализации на Rust. Цель — устранить зависимость от системной C-библиотеки.
+    *   [ ] Постепенная замена вызовов C-функций на нативные реализации на Rust с целью полного устранения C-зависимости.
 
 *   **Этап 3: Продвинутый анализ**
-    *   [ ] Реализация системы оценки `Quality` (качество формы) и `Strength` (сила сигнала в контексте) после перехода на нативную реализацию.
+    *   [ ] Реализация расширенной системы оценки `Quality` (форма) и `Strength` (сила сигнала в контексте).
 
 ## Лицензия
 

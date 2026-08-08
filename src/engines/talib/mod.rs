@@ -1,19 +1,22 @@
-use ta_lib_sys::RetCode;
-use crate::{Candle, Error};
 use crate::Error::CalculationError;
+use crate::{Candle, Error};
+use ta_lib_sys::RetCode;
 
+#[cfg(feature = "cdl")]
 pub(crate) mod cdl;
+
+#[cfg(feature = "ta")]
 pub(crate) mod ta;
 
-
-fn map_error(res: RetCode) -> Result<(), Error> {
+pub(crate) fn map_error(res: RetCode) -> Result<(), Error> {
     match res {
         RetCode::SUCCESS => Ok(()),
         _ => Err(CalculationError(format!("TA-Lib error: {res:?}"))),
     }
 }
 
-fn map_output<T: Copy + Default>(out_arr: &[T], out_nb_element: i32, out_beg_idx: i32) -> Vec<T> {
+#[cfg(feature = "cdl")]
+pub(crate) fn map_output<T: Copy + Default>(out_arr: &[T], out_nb_element: i32, out_beg_idx: i32) -> Vec<T> {
     let mut results: Vec<T> = vec![T::default(); out_arr.len()];
 
     let calculated_part = &out_arr[0..out_nb_element as usize];
@@ -31,6 +34,7 @@ fn map_output<T: Copy + Default>(out_arr: &[T], out_nb_element: i32, out_beg_idx
 }
 
 pub(crate) trait IntoRows {
+    #[allow(dead_code)]
     fn opens(&self) -> Vec<f64>;
     fn closes(&self) -> Vec<f64>;
     fn lows(&self) -> Vec<f64>;
