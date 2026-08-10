@@ -33,7 +33,11 @@ full = ["cdl", "ta"]
 default = ["full"]
 
 [dependencies]
-ta-lib-sys = { version = "0.1.2", optional = true }
+# Pinned to the sbooker/ta-lib-rs fork which fixes the build script
+# (rerun-if-changed + drop bindgen::CargoCallbacks + parallel make).
+# Upstream virtualritz/ta-lib-rs#master is unchanged and still slow.
+# See https://github.com/sbooker/ta-lib-rs commit e4fb45c.
+ta-lib-sys = { git = "https://github.com/sbooker/ta-lib-rs", tag = "v0.1.3", optional = true }
 
 [dev-dependencies]
 float_eq = "1.0.1"
