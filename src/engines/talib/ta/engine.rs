@@ -35,8 +35,8 @@ impl TaApiInternal for TaLibEngine {
         Ok(map_output_res(&out_arr, out_nb_element, out_beg_idx))
     }
 
-    fn super_trend(candles: &[SimpleCandle], period: NonZeroU16, multiplier: NonZeroU16) -> Result<IndicatorResult<SuperTrendResult>, Error> {
-        SuperTrend::calc(candles, period, multiplier.get() as f64)
+    fn super_trend(candles: &[SimpleCandle], period: NonZeroU16, multiplier: f64) -> Result<IndicatorResult<SuperTrendResult>, Error> {
+        SuperTrend::calc(candles, period, multiplier)
     }
 }
 

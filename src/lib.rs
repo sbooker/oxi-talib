@@ -76,7 +76,7 @@
 //! let super_trend = oxi_talib::super_trend(
 //!     &candles,
 //!     NonZeroU16::new(14).unwrap(),
-//!     NonZeroU16::new(3).unwrap(),
+//!     3.0,
 //! ).unwrap();
 //! # }
 //! ```

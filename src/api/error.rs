@@ -1,7 +1,6 @@
 use crate::Error::*;
 use std::fmt::Formatter;
 
-/// An enum representing all possible errors in the library.
 #[derive(Debug)]
 pub enum Error {
     /// An error from the underlying calculation engine.
@@ -10,6 +9,8 @@ pub enum Error {
     AlreadyConfigured,
     /// Provided candle data was invalid (e.g., `high < low`).
     InvalidCandle(String),
+    /// Argument Out of range
+    ArgumentOutOfRange(String),
 }
 
 impl std::fmt::Display for Error {
@@ -18,6 +19,7 @@ impl std::fmt::Display for Error {
             CalculationError(r) => write!(f, "Calculation error: {r}"),
             AlreadyConfigured => write!(f, "Already Configured"),
             InvalidCandle(r) => write!(f, "Invalid Candle: {r}"),
+            ArgumentOutOfRange(r) => write!(f, "Argument out of range: {r}"),
         }
     }
 }

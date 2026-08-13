@@ -8,6 +8,9 @@ pub(crate) struct SuperTrend {}
 
 impl SuperTrend {
     pub(crate) fn calc(candles: &[SimpleCandle], period: NonZeroU16, multiplier: f64) -> Result<IndicatorResult<SuperTrendResult>, Error> {
+        if multiplier < 1.0 {
+            return Err(Error::ArgumentOutOfRange("multiplier < 1.".to_string()));
+        }
         let atr_indicator = TaLibEngine::atr(candles, period)?;
         let offset = atr_indicator.offset;
         let mut prev_close: f64 = candles[offset - 1].close();
