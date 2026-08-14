@@ -8,6 +8,10 @@ pub fn atr<C: Candle>(candles: &[C], period: NonZeroU16) -> Result<IndicatorResu
     TaLibEngine::atr(SimpleCandle::try_map_candles(candles)?.as_slice(), period)
 }
 
+pub fn adx<C: Candle>(candles: &[C], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error> {
+    TaLibEngine::atr(SimpleCandle::try_map_candles(candles)?.as_slice(), period)
+}
+
 pub fn super_trend<C: Candle>(candles: &[C], period: NonZeroU16, multiplier: f64) -> Result<IndicatorResult<SuperTrendResult>, Error> {
     TaLibEngine::super_trend(SimpleCandle::try_map_candles(candles)?.as_slice(), period, multiplier)
 }

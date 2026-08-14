@@ -1,27 +1,21 @@
-use crate::Error::*;
-use std::fmt::Formatter;
+use std::num::NonZeroU16;
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum Error {
     /// An error from the underlying calculation engine.
+    #[error("Calculation error: {0}")]
     CalculationError(String),
     /// An attempt was made to configure the library more than once.
+    #[error("Already Configured")]
     AlreadyConfigured,
     /// Provided candle data was invalid (e.g., `high < low`).
+    #[error("Invalid Candle: {0}")]
     InvalidCandle(String),
     /// Argument Out of range
+    #[error("Argument out of range:  {0}")]
     ArgumentOutOfRange(String),
+    /// Insufficient input data
+    #[error("Insufficient input data: input size {0}, period: {1}")]
+    InsufficientInputData(usize, NonZeroU16),
 }
-
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            CalculationError(r) => write!(f, "Calculation error: {r}"),
-            AlreadyConfigured => write!(f, "Already Configured"),
-            InvalidCandle(r) => write!(f, "Invalid Candle: {r}"),
-            ArgumentOutOfRange(r) => write!(f, "Argument out of range: {r}"),
-        }
-    }
-}
-
-impl std::error::Error for Error {}
