@@ -74,6 +74,7 @@
 //!
 //! let atr = oxi_talib::atr(&candles, NonZeroU16::new(14).unwrap()).unwrap();
 //! let adx = oxi_talib::adx(&candles, NonZeroU16::new(14).unwrap()).unwrap();
+//! let rsi = oxi_talib::rsi(&candles, NonZeroU16::new(14).unwrap()).unwrap();
 //! let super_trend = oxi_talib::super_trend(
 //!     &candles,
 //!     NonZeroU16::new(14).unwrap(),

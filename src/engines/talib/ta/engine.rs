@@ -5,7 +5,7 @@ use crate::engines::talib::ta::super_trend::SuperTrend;
 use crate::engines::talib::{map_error, IntoRows};
 use crate::{Error, SimpleCandle};
 use std::num::NonZeroU16;
-use ta_lib_sys::{ADX, ATR};
+use ta_lib_sys::{ADX, ATR, RSI};
 
 pub(crate) struct TaLibEngine {}
 
@@ -54,6 +54,31 @@ impl TaApiInternal for TaLibEngine {
                     (candles.len() - 1) as i32,
                     candles.highs().as_ptr(),
                     candles.lows().as_ptr(),
+                    candles.closes().as_ptr(),
+                    period.get() as i32,
+                    &mut out_beg_idx as *mut i32,
+                    &mut out_nb_element as *mut i32,
+                    out_arr.as_mut_ptr(),
+                )
+            )?
+        }
+
+        Ok(map_output_res(&out_arr, out_nb_element, out_beg_idx))
+    }
+
+    fn rsi(candles: &[SimpleCandle], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error> {
+        if candles.len() < period.get() as usize {
+            return Err(Error::InsufficientInputData(candles.len(), period))
+        }
+        let mut out_beg_idx: i32 = 0;
+        let mut out_nb_element: i32 = 0;
+        let mut out_arr: Vec<f64> = vec![0f64; candles.len()];
+
+        unsafe {
+            map_error(
+                RSI(
+                    0,
+                    (candles.len() - 1) as i32,
                     candles.closes().as_ptr(),
                     period.get() as i32,
                     &mut out_beg_idx as *mut i32,
