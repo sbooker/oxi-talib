@@ -10,6 +10,7 @@ use crate::api::SimpleCandle;
 #[cfg(feature = "ta")]
 use crate::api::results::{IndicatorResult, SuperTrendResult};
 
+use crate::api::results::BBandsResult;
 #[cfg(feature = "ta")]
 use std::num::NonZeroU16;
 
@@ -29,4 +30,6 @@ pub trait TaApiInternal {
 
     fn rsi(candles: &[SimpleCandle], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error>;
     fn super_trend(candles: &[SimpleCandle], period: NonZeroU16, multiplier: f64) -> Result<IndicatorResult<SuperTrendResult>, Error>;
+
+    fn bbands(candles: &[SimpleCandle], period: NonZeroU16, multiplier: f64) -> Result<IndicatorResult<BBandsResult>, Error>;
 }

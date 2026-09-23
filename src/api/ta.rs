@@ -1,4 +1,4 @@
-use crate::api::results::{IndicatorResult, SuperTrendResult};
+use crate::api::results::{BBandsResult, IndicatorResult, SuperTrendResult};
 use crate::engines::internal::TaApiInternal;
 use crate::engines::talib::ta::engine::TaLibEngine;
 use crate::{Candle, Error, SimpleCandle};
@@ -9,7 +9,7 @@ pub fn atr<C: Candle>(candles: &[C], period: NonZeroU16) -> Result<IndicatorResu
 }
 
 pub fn adx<C: Candle>(candles: &[C], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error> {
-    TaLibEngine::atr(SimpleCandle::try_map_candles(candles)?.as_slice(), period)
+    TaLibEngine::adx(SimpleCandle::try_map_candles(candles)?.as_slice(), period)
 }
 
 pub fn rsi<C: Candle>(candles: &[C], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error> {
@@ -18,4 +18,8 @@ pub fn rsi<C: Candle>(candles: &[C], period: NonZeroU16) -> Result<IndicatorResu
 
 pub fn super_trend<C: Candle>(candles: &[C], period: NonZeroU16, multiplier: f64) -> Result<IndicatorResult<SuperTrendResult>, Error> {
     TaLibEngine::super_trend(SimpleCandle::try_map_candles(candles)?.as_slice(), period, multiplier)
+}
+
+pub fn bbands<C: Candle>(candles: &[C], period: NonZeroU16, multiplier: f64) -> Result<IndicatorResult<BBandsResult>, Error> {
+    TaLibEngine::bbands(SimpleCandle::try_map_candles(candles)?.as_slice(), period, multiplier)
 }
