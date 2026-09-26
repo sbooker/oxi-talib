@@ -13,10 +13,9 @@ impl SuperTrend {
         }
         let atr_indicator = TaLibEngine::atr(candles, period)?;
         let offset = atr_indicator.offset;
-        let mut prev_close: f64 = candles[offset - 1].close();
-
         let mut values = Vec::with_capacity(atr_indicator.values.len());
         let candle = &candles[offset];
+        let mut prev_close = candle.close();
         let (mut prev_upper, mut prev_lower, hl2) = Self::upper_lower(candle, atr_indicator.values[0], multiplier);
         let mut prev_trend = if candle.close() > hl2 { Trend::Bullish } else { Trend::Bearish };
 
@@ -45,8 +44,8 @@ impl SuperTrend {
             };
 
             let trend = match prev_trend {
-                Trend::Bullish => if candle.close() < final_lower { Trend::Bearish } else { Trend::Bullish },
-                Trend::Bearish => if candle.close() > final_upper { Trend::Bullish } else { Trend::Bearish },
+                Trend::Bullish => if candle.close() < prev_lower { Trend::Bearish } else { Trend::Bullish },
+                Trend::Bearish => if candle.close() > prev_upper { Trend::Bullish } else { Trend::Bearish },
             };
 
             let value = match trend {
