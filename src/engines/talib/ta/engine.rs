@@ -5,12 +5,87 @@ use crate::engines::talib::ta::super_trend::SuperTrend;
 use crate::engines::talib::{map_error, IntoRows};
 use crate::{Error, SimpleCandle};
 use std::num::NonZeroU16;
-use ta_lib_sys::{MAType, ADX, ATR, BBANDS, RSI};
+use ta_lib_sys::{MAType, ADX, ATR, BBANDS, RSI, SMA, STDDEV, TRANGE};
 
 pub(crate) struct TaLibEngine {}
 
 #[allow(non_snake_case, clippy::too_many_arguments)]
 impl TaApiInternal for TaLibEngine {
+    fn sma(data: &[f64], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error> {
+        if data.len() < period.get() as usize {
+            return Err(Error::InsufficientInputData(data.len(), period))
+        }
+
+        let mut out_beg_idx: i32 = 0;
+        let mut out_nb_element: i32 = 0;
+        let mut out_arr: Vec<f64> = vec![0f64; data.len()];
+
+        unsafe {
+            map_error(
+                SMA(
+                    0,
+                    (data.len() - 1) as i32,
+                    data.as_ptr(),
+                    period.get() as i32,
+                    &mut out_beg_idx as *mut i32,
+                    &mut out_nb_element as *mut i32,
+                    out_arr.as_mut_ptr(),
+                )
+            )?
+        }
+
+        Ok(map_output_res(&out_arr, out_nb_element, out_beg_idx))
+    }
+
+    fn trange(candles: &[SimpleCandle]) -> Result<IndicatorResult<f64>, Error> {
+        let mut out_beg_idx: i32 = 0;
+        let mut out_nb_element: i32 = 0;
+        let mut out_arr: Vec<f64> = vec![0f64; candles.len()];
+
+        unsafe {
+            map_error(
+                TRANGE(
+                    0,
+                    (candles.len() - 1) as i32,
+                    candles.highs().as_ptr(),
+                    candles.lows().as_ptr(),
+                    candles.closes().as_ptr(),
+                    &mut out_beg_idx as *mut i32,
+                    &mut out_nb_element as *mut i32,
+                    out_arr.as_mut_ptr(),
+                )
+            )?
+        }
+
+        Ok(map_output_res(&out_arr, out_nb_element, out_beg_idx))
+    }
+
+    fn stddev(candles: &[SimpleCandle], period: NonZeroU16, number_of_deviations: f64) -> Result<IndicatorResult<f64>, Error> {
+        if candles.len() < period.get() as usize {
+            return Err(Error::InsufficientInputData(candles.len(), period))
+        }
+
+        let mut out_beg_idx: i32 = 0;
+        let mut out_nb_element: i32 = 0;
+        let mut out_arr: Vec<f64> = vec![0f64; candles.len()];
+
+        unsafe {
+            map_error(
+                STDDEV(
+                    0,
+                    (candles.len() - 1) as i32,
+                    candles.closes().as_ptr(),
+                    period.get() as i32,
+                    number_of_deviations,
+                    &mut out_beg_idx as *mut i32,
+                    &mut out_nb_element as *mut i32,
+                    out_arr.as_mut_ptr(),
+                )
+            )?
+        }
+
+        Ok(map_output_res(&out_arr, out_nb_element, out_beg_idx))
+    }
     fn atr(candles: &[SimpleCandle], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error> {
         if candles.len() < period.get() as usize {
             return Err(Error::InsufficientInputData(candles.len(), period))
@@ -141,6 +216,7 @@ impl TaApiInternal for TaLibEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use float_eq::assert_float_eq;
 
     mod atr {
         use super::*;
@@ -251,5 +327,46 @@ mod tests {
             assert_float_eq!(uppers, expected_uppers, abs_all <= 1e-7);
             assert_float_eq!(lowers, expected_lowers, abs_all <= 1e-7);
         }
+    }
+
+    fn sample_candles() -> Vec<SimpleCandle> {
+        vec![
+            (10.0, 15.0, 8.0,  12.0),
+            (12.0, 14.0, 10.0, 11.0),
+            (11.0, 16.0, 9.0,  14.0),
+            (14.0, 14.0, 12.0, 13.0),
+        ]
+            .into_iter()
+            .map(|(open, high, low, close)| SimpleCandle::try_new(open, close, high, low).unwrap())
+            .collect()
+    }
+
+    #[test]
+    fn test_trange() {
+        let candles = sample_candles();
+        let res = TaLibEngine::trange(&candles).unwrap();
+
+        assert_eq!(res.offset, 1);
+        assert_float_eq!(res.values, vec![4.0, 7.0, 2.0], abs_all <= 1e-6);
+    }
+
+    #[test]
+    fn test_sma() {
+        // Тестируем абстрактный массив f64
+        let data = vec![4.0, 7.0, 2.0];
+        let res = TaLibEngine::sma(&data, 2.try_into().unwrap()).unwrap();
+
+        assert_eq!(res.offset, 1);
+        assert_float_eq!(res.values, vec![5.5, 4.5], abs_all <= 1e-6);
+    }
+
+    #[test]
+    fn test_stddev() {
+        let candles = sample_candles();
+        // stddev(12, 11)=0.5 | stddev(11, 14)=1.5 | stddev(14, 13)=0.5
+        let res = TaLibEngine::stddev(&candles, 2.try_into().unwrap(), 1.0).unwrap();
+
+        assert_eq!(res.offset, 1);
+        assert_float_eq!(res.values, vec![0.5, 1.5, 0.5], abs_all <= 1e-6);
     }
 }

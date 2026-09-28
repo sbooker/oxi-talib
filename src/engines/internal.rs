@@ -8,9 +8,9 @@ use crate::api::{Pattern, Signal};
 use crate::api::SimpleCandle;
 
 #[cfg(feature = "ta")]
-use crate::api::results::{IndicatorResult, SuperTrendResult};
-
 use crate::api::results::BBandsResult;
+#[cfg(feature = "ta")]
+use crate::api::results::{IndicatorResult, SuperTrendResult};
 #[cfg(feature = "ta")]
 use std::num::NonZeroU16;
 
@@ -25,11 +25,12 @@ pub trait CdlApiInternal {
 
 #[cfg(feature = "ta")]
 pub trait TaApiInternal {
+    fn trange(candles: &[SimpleCandle]) -> Result<IndicatorResult<f64>, Error>;
+    fn stddev(candles: &[SimpleCandle], period: NonZeroU16, number_of_deviations: f64) -> Result<IndicatorResult<f64>, Error>;
+    fn sma(data: &[f64], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error>;
     fn atr(candles: &[SimpleCandle], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error>;
     fn adx(candles: &[SimpleCandle], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error>;
-
     fn rsi(candles: &[SimpleCandle], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error>;
     fn super_trend(candles: &[SimpleCandle], period: NonZeroU16, multiplier: f64) -> Result<IndicatorResult<SuperTrendResult>, Error>;
-
     fn bbands(candles: &[SimpleCandle], period: NonZeroU16, multiplier: f64) -> Result<IndicatorResult<BBandsResult>, Error>;
 }
