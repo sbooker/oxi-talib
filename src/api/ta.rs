@@ -4,6 +4,10 @@ use crate::engines::talib::ta::engine::TaLibEngine;
 use crate::{Candle, Error, SimpleCandle};
 use std::num::NonZeroU16;
 
+pub fn correl(data1: &[f64], data2: &[f64], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error> {
+    TaLibEngine::correl(data1, data2, period)
+}
+
 pub fn sma(data: &[f64], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error> {
     TaLibEngine::sma(data, period)
 }

@@ -27,6 +27,7 @@ pub trait CdlApiInternal {
 pub trait TaApiInternal {
     fn trange(candles: &[SimpleCandle]) -> Result<IndicatorResult<f64>, Error>;
     fn stddev(candles: &[SimpleCandle], period: NonZeroU16, number_of_deviations: f64) -> Result<IndicatorResult<f64>, Error>;
+    fn correl(data1: &[f64], data2: &[f64], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error>;
     fn sma(data: &[f64], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error>;
     fn atr(candles: &[SimpleCandle], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error>;
     fn adx(candles: &[SimpleCandle], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error>;

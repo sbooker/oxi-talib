@@ -18,4 +18,6 @@ pub enum Error {
     /// Insufficient input data
     #[error("Insufficient input data: input size {0}, period: {1}")]
     InsufficientInputData(usize, NonZeroU16),
+    #[error("Input data mismatch length ({0} != {1})")]
+    InputDataMismatchLength(usize, usize),
 }

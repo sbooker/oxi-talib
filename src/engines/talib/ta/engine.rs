@@ -5,12 +5,46 @@ use crate::engines::talib::ta::super_trend::SuperTrend;
 use crate::engines::talib::{map_error, IntoRows};
 use crate::{Error, SimpleCandle};
 use std::num::NonZeroU16;
-use ta_lib_sys::{MAType, ADX, ATR, BBANDS, RSI, SMA, STDDEV, TRANGE};
+use ta_lib_sys::{MAType, ADX, ATR, BBANDS, CORREL, RSI, SMA, STDDEV, TRANGE};
 
 pub(crate) struct TaLibEngine {}
 
 #[allow(non_snake_case, clippy::too_many_arguments)]
 impl TaApiInternal for TaLibEngine {
+    fn correl(data1: &[f64], data2: &[f64], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error> {
+        if data1.len() != data2.len() {
+            return Err(Error::InputDataMismatchLength(data1.len(), data2.len()));
+        }
+        if data1.len() < period.get() as usize {
+            return Err(Error::InsufficientInputData(data1.len(), period))
+        }
+        if data2.len() < period.get() as usize {
+            return Err(Error::InsufficientInputData(data2.len(), period))
+        }
+
+
+        let mut out_beg_idx: i32 = 0;
+        let mut out_nb_element: i32 = 0;
+        let mut out_arr: Vec<f64> = vec![0f64; data1.len()];
+
+        unsafe {
+            map_error(
+                CORREL(
+                    0,
+                    (data1.len() - 1) as i32,
+                    data1.as_ptr(),
+                    data2.as_ptr(),
+                    period.get() as i32,
+                    &mut out_beg_idx as *mut i32,
+                    &mut out_nb_element as *mut i32,
+                    out_arr.as_mut_ptr(),
+                )
+            )?
+        }
+
+        Ok(map_output_res(&out_arr, out_nb_element, out_beg_idx))
+    }
+
     fn sma(data: &[f64], period: NonZeroU16) -> Result<IndicatorResult<f64>, Error> {
         if data.len() < period.get() as usize {
             return Err(Error::InsufficientInputData(data.len(), period))

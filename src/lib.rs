@@ -78,6 +78,7 @@
 //! let true_range = oxi_talib::trange(&candles).unwrap();
 //! let standard_deviation = oxi_talib::stddev(&candles, NonZeroU16::new(14).unwrap(), 1.0).unwrap();
 //! let sma50 = oxi_talib::sma(&[99.0, 98.0 ...], NonZeroU16::new(50).unwrap()).unwrap();
+//! let correlation = oxi_talib::correl(&[99.0, 98.0 ...], &[98.0, 100.0 ...], NonZeroU16::new(50).unwrap()).unwrap();
 //! let super_trend = oxi_talib::super_trend(
 //!     &candles,
 //!     NonZeroU16::new(14).unwrap(),
